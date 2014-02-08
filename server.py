@@ -5,6 +5,7 @@ import tornado.websocket
 import tornado.ioloop
 
 from tornado.escape import json_decode
+from random import randint
 
 
 class WebSocketHandler(tornado.websocket.WebSocketHandler):
@@ -16,14 +17,19 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
     def on_message(self, message):
         data = json_decode(message)
         try:
-            if data.get('type') == 'sqr':
-                message = int(data.get('number'))
-                message = str(message * message)
-            elif data.get('type') == 'add':
-                message = int(data.get('number'))
-                message = str(message + message)
+            if data.get('type') == 'warriorAttack':
+                attack = int(data.get('attack'))
+                defense = int(data.get('defense'))
+                evade = int(data.get('evade'))
+                health = int(data.get('health'))
+                if randint(1, 100) <= evade:
+                    message = 'El enemigo esquivo'
+                elif attack > defense:
+                    message = str(health - (attack - defense))
+            else:
+                self.write_message("no iguale el data type")
         except ValueError:
-            message = 'No habia un numero entero en ese objeto'
+            message = 'No funciono el ataque'
         self.write_message(message)
 
     def on_close(self):
